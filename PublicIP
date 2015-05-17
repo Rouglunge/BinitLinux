@@ -1,0 +1,32 @@
+#!/bin/bash 
+# Get this hosts public ip address (address of your router). 
+
+# Check that curl is available 
+if [ -z `which curl` ]; then 
+
+	>&2 echo "curl is not installed..." 
+	exit 1 
+fi 
+
+# List of sites that echo your browser's ip 
+sites="ipecho.net icanhazip.com"
+
+# Set time (in seconds) to abandon if no response
+timeout=10
+
+# Check for a response from each site 
+for site in `echo "$sites"`; do 
+
+	# Analyse the respose from the site for a valid ip 
+	ip=`curl –connect-timeout $timeout –max-time $timeout -s "$site" | grep -o '\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}'`
+
+	# If there is an ip then success 
+	if [ ! -z "$ip" ]; then 
+
+		echo "$ip" 
+		exit 0 
+	fi 
+done 
+
+# No (useful) response from any of the sites 
+exit 1
